@@ -1,0 +1,509 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Order Confirmation | Elearning</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fb;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #1f2937;
+        }
+
+        .email-wrapper {
+            width: 100%;
+            padding: 40px 15px;
+        }
+
+        .email-container {
+            max-width: 650px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Header */
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            padding: 32px 30px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 18px;
+        }
+
+        .logo span {
+            color: #c4b5fd;
+        }
+
+        .success-icon {
+            width: 58px;
+            height: 58px;
+            margin: 0 auto 18px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+            line-height: 1.3;
+        }
+
+        .header p {
+            margin: 10px 0 0;
+            font-size: 15px;
+            color: #e0e7ff;
+        }
+
+        /* Content */
+
+        .content {
+            padding: 35px 30px;
+        }
+
+        .greeting {
+            font-size: 16px;
+            line-height: 1.7;
+            color: #4b5563;
+            margin-bottom: 28px;
+        }
+
+        .section-title {
+            margin: 0 0 15px;
+            font-size: 18px;
+            color: #111827;
+        }
+
+        /* Order meta */
+
+        .order-meta {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            margin-bottom: 28px;
+        }
+
+        .order-meta td {
+            padding: 16px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .order-meta td:last-child {
+            text-align: right;
+        }
+
+        .order-meta strong {
+            display: block;
+            margin-top: 5px;
+            color: #111827;
+            font-size: 14px;
+        }
+
+        /* Course */
+
+        .course-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .course-card-header {
+            padding: 18px 20px;
+            background-color: #f8fafc;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .course-label {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background-color: #ede9fe;
+            color: #6d28d9;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .course-name {
+            margin: 12px 0 0;
+            font-size: 17px;
+            line-height: 1.5;
+            color: #111827;
+        }
+
+        .course-details {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .course-details td {
+            padding: 16px 20px;
+            font-size: 14px;
+            color: #4b5563;
+        }
+
+        .course-details td:nth-child(2) {
+            text-align: center;
+            width: 80px;
+        }
+
+        .course-details td:last-child {
+            text-align: right;
+            font-weight: 600;
+            color: #111827;
+            width: 120px;
+        }
+
+        /* Price summary */
+
+        .summary {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 20px;
+        }
+
+        .summary-row {
+            width: 100%;
+            display: table;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .summary-label,
+        .summary-value {
+            display: table-cell;
+        }
+
+        .summary-value {
+            text-align: right;
+            color: #374151;
+        }
+
+        .total-row {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 15px;
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .total-row .summary-value {
+            color: #4f46e5;
+        }
+
+        /* CTA */
+
+        .cta-wrapper {
+            text-align: center;
+            margin: 32px 0 10px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 14px 28px;
+            background-color: #4f46e5;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .cta-text {
+            margin-top: 12px;
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        /* Footer */
+
+        .footer {
+            background-color: #f8fafc;
+            border-top: 1px solid #e5e7eb;
+            padding: 25px 30px;
+            text-align: center;
+        }
+
+        .footer p {
+            margin: 5px 0;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #9ca3af;
+        }
+
+        .footer strong {
+            color: #6b7280;
+        }
+
+        /* Mobile */
+
+        @media only screen and (max-width: 600px) {
+            .email-wrapper {
+                padding: 15px 8px;
+            }
+
+            .content {
+                padding: 25px 18px;
+            }
+
+            .header {
+                padding: 28px 20px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .order-meta td {
+                display: block;
+                width: 100%;
+                text-align: left !important;
+                padding: 12px 16px;
+            }
+
+            .course-details td {
+                padding: 14px 12px;
+            }
+
+            .course-details td:nth-child(2) {
+                width: 50px;
+            }
+
+            .course-details td:last-child {
+                width: 90px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="email-wrapper">
+
+        <div class="email-container">
+
+            <!-- Header -->
+
+            <div class="header">
+
+                <div class="logo">
+                    Elearning<span>.</span>
+                </div>
+
+                <div class="success-icon">
+                    ✓
+                </div>
+
+                <h1>Order Confirmed!</h1>
+
+                <p>Your learning journey starts now.</p>
+
+            </div>
+
+
+            <!-- Main Content -->
+
+            <div class="content">
+
+                <div class="greeting">
+                    Thank you for choosing <strong>Elearning</strong>.
+                    Your order has been successfully confirmed, and we're excited
+                    to have you learning with us.
+                </div>
+
+
+                <!-- Order Information -->
+
+                <h2 class="section-title">
+                    Order Information
+                </h2>
+
+                <table class="order-meta">
+
+                    <tr>
+
+                        <td>
+                            Order Number
+                            <strong>
+                                #<%= order._id %>
+                            </strong>
+                        </td>
+
+                        <td>
+                            Order Date
+                            <strong>
+                                <%= order.date %>
+                            </strong>
+                        </td>
+
+                    </tr>
+
+                </table>
+
+
+                <!-- Course -->
+
+                <h2 class="section-title">
+                    What You Ordered
+                </h2>
+
+                <div class="course-card">
+
+                    <div class="course-card-header">
+
+                        <span class="course-label">
+                            Course
+                        </span>
+
+                        <h3 class="course-name">
+                            <%= order.name %>
+                        </h3>
+
+                    </div>
+
+                    <table class="course-details">
+
+                        <tr>
+
+                            <td>
+                                <%= order.name %>
+                            </td>
+
+                            <td>
+                                1
+                            </td>
+
+                            <td>
+                                $<%= order.price %>
+                            </td>
+
+                        </tr>
+
+                    </table>
+
+                </div>
+
+
+                <!-- Payment Summary -->
+
+                <h2 class="section-title">
+                    Payment Summary
+                </h2>
+
+                <div class="summary">
+
+                    <div class="summary-row">
+
+                        <span class="summary-label">
+                            Subtotal
+                        </span>
+
+                        <span class="summary-value">
+                            $<%= order.price %>
+                        </span>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span class="summary-label">
+                            Discount
+                        </span>
+
+                        <span class="summary-value">
+                            $0.00
+                        </span>
+
+                    </div>
+
+
+                    <div class="summary-row total-row">
+
+                        <span class="summary-label">
+                            Total Paid
+                        </span>
+
+                        <span class="summary-value">
+                            $<%= order.price %>
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CTA -->
+
+                <div class="cta-wrapper">
+
+                    <a href="#" class="cta-button">
+                        Start Learning
+                    </a>
+
+                    <div class="cta-text">
+                        Access your course from your Elearning dashboard.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Footer -->
+
+            <div class="footer">
+
+                <p>
+                    Thank you for learning with <strong>Elearning</strong>.
+                </p>
+
+                <p>
+                    If you have any questions about your order, please contact
+                    our support team.
+                </p>
+
+                <p>
+                    © 2026 Elearning. All rights reserved.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
+```
