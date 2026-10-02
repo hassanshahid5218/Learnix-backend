@@ -522,7 +522,9 @@ export const registrationUser = CatchAsyncError(
             const isEmailExist = await userModel.findOne({ email });
 
             if (isEmailExist) {
-                return next(new ErrorHandler("Email already exist", 400));
+                return next(
+                    new ErrorHandler("Email already exist", 400)
+                );
             }
 
             const user: IRegistrationBody = {
@@ -542,7 +544,7 @@ export const registrationUser = CatchAsyncError(
                 activationCode,
             };
 
-            const html = await ejs.renderFile(
+            await ejs.renderFile(
                 path.join(__dirname, "../mails/activation-mail.ejs"),
                 data
             );
@@ -561,10 +563,14 @@ export const registrationUser = CatchAsyncError(
                     activationToken: activationToken.token,
                 });
             } catch (error: any) {
-                return next(new ErrorHandler(error.message, 400));
+                return next(
+                    new ErrorHandler(error.message, 400)
+                );
             }
         } catch (error: any) {
-            return next(new ErrorHandler(error.message, 400));
+            return next(
+                new ErrorHandler(error.message, 400)
+            );
         }
     }
 );
@@ -574,7 +580,9 @@ interface IActivationToken {
     activationCode: string;
 }
 
-export const createActivationToken = (user: any): IActivationToken => {
+export const createActivationToken = (
+    user: any
+): IActivationToken => {
     const activationCode = Math.floor(
         1000 + Math.random() * 9000
     ).toString();
@@ -596,7 +604,9 @@ export const createActivationToken = (user: any): IActivationToken => {
     };
 };
 
-// Activate user
+/**
+ * Activate user
+ */
 
 interface IActivationRequest {
     activation_token: string;
@@ -622,23 +632,37 @@ export const activateUser = CatchAsyncError(
                 activationCode: string;
             };
 
-            if (newUser.activationCode !== activation_code) {
+            if (
+                newUser.activationCode !==
+                activation_code
+            ) {
                 return next(
-                    new ErrorHandler("Invalid activation code", 400)
+                    new ErrorHandler(
+                        "Invalid activation code",
+                        400
+                    )
                 );
             }
 
-            const { name, email, password } = newUser.user;
+            const {
+                name,
+                email,
+                password,
+            } = newUser.user;
 
-            const existUser = await userModel.findOne({ email });
+            const existUser =
+                await userModel.findOne({ email });
 
             if (existUser) {
                 return next(
-                    new ErrorHandler("Email already exist", 400)
+                    new ErrorHandler(
+                        "Email already exist",
+                        400
+                    )
                 );
             }
 
-            const user = await userModel.create({
+            await userModel.create({
                 name,
                 email,
                 password,
@@ -648,12 +672,16 @@ export const activateUser = CatchAsyncError(
                 success: true,
             });
         } catch (error: any) {
-            return next(new ErrorHandler(error.message, 400));
+            return next(
+                new ErrorHandler(error.message, 400)
+            );
         }
     }
 );
 
-// Login user
+/**
+ * Login user
+ */
 
 interface ILoginRequest {
     email: string;
@@ -663,7 +691,10 @@ interface ILoginRequest {
 export const loginUser = CatchAsyncError(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { email, password } = req.body as ILoginRequest;
+            const {
+                email,
+                password,
+            } = req.body as ILoginRequest;
 
             if (!email || !password) {
                 return next(
@@ -680,32 +711,48 @@ export const loginUser = CatchAsyncError(
 
             if (!user) {
                 return next(
-                    new ErrorHandler("Invalid email or password", 400)
+                    new ErrorHandler(
+                        "Invalid email or password",
+                        400
+                    )
                 );
             }
 
-            const isPasswordMatch = await user.comparePassword(password);
+            const isPasswordMatch =
+                await user.comparePassword(password);
 
             if (!isPasswordMatch) {
                 return next(
-                    new ErrorHandler("Invalid email or password", 400)
+                    new ErrorHandler(
+                        "Invalid email or password",
+                        400
+                    )
                 );
             }
 
             sendToken(user, 200, res);
         } catch (error: any) {
-            return next(new ErrorHandler(error.message, 400));
+            return next(
+                new ErrorHandler(error.message, 400)
+            );
         }
     }
 );
 
-// Logout user
+/**
+ * Logout user
+ */
 
 export const logoutUser = CatchAsyncError(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            res.cookie("access_token", "", { maxAge: 1 });
-            res.cookie("refresh_token", "", { maxAge: 1 });
+            res.cookie("access_token", "", {
+                maxAge: 1,
+            });
+
+            res.cookie("refresh_token", "", {
+                maxAge: 1,
+            });
 
             const userId = req.user?._id;
 
@@ -718,17 +765,22 @@ export const logoutUser = CatchAsyncError(
                 message: "Logged out successfully",
             });
         } catch (error: any) {
-            return next(new ErrorHandler(error.message, 400));
+            return next(
+                new ErrorHandler(error.message, 400)
+            );
         }
     }
 );
 
-// Update access token
+/**
+ * Update access token
+ */
 
 export const updateAccessToken = CatchAsyncError(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const refresh_token = req.cookies.refresh_token as string;
+            const refresh_token =
+                req.cookies.refresh_token as string;
 
             const decoded = jwt.verify(
                 refresh_token,
@@ -738,10 +790,14 @@ export const updateAccessToken = CatchAsyncError(
             const message = "Could not refresh token";
 
             if (!decoded) {
-                return next(new ErrorHandler(message, 400));
+                return next(
+                    new ErrorHandler(message, 400)
+                );
             }
 
-            const session = await redis.get(decoded.id as string);
+            const session = await redis.get(
+                decoded.id as string
+            );
 
             if (!session) {
                 return next(
@@ -797,16 +853,21 @@ export const updateAccessToken = CatchAsyncError(
 
             return res.status(200).json({
                 success: true,
-                message: "Access token refreshed successfully",
+                message:
+                    "Access token refreshed successfully",
                 accessToken,
             });
         } catch (error: any) {
-            return next(new ErrorHandler(error.message, 400));
+            return next(
+                new ErrorHandler(error.message, 400)
+            );
         }
     }
 );
 
-// Get user info
+/**
+ * Get user info
+ */
 
 export const getUserInfo = CatchAsyncError(
     async (req: Request, res: Response, next: NextFunction) => {
@@ -815,13 +876,21 @@ export const getUserInfo = CatchAsyncError(
 
             if (!userId) {
                 return next(
-                    new ErrorHandler("User not authenticated", 401)
+                    new ErrorHandler(
+                        "User not authenticated",
+                        401
+                    )
                 );
             }
 
-            getUserById(userId.toString(), res);
+            getUserById(
+                userId.toString(),
+                res
+            );
         } catch (error: any) {
-            return next(new ErrorHandler(error.message, 400));
+            return next(
+                new ErrorHandler(error.message, 400)
+            );
         }
     }
 );
@@ -845,29 +914,43 @@ export const socialAuth = CatchAsyncError(
                 avatar,
             } = req.body as ISocialAuthBody;
 
-            const user = await userModel.findOne({ email });
+            const user =
+                await userModel.findOne({ email });
 
             if (!user) {
-                const newUser = await userModel.create({
-                    email,
-                    name,
-                    avatar: {
-                        public_id: "",
-                        url: avatar,
-                    },
-                });
+                const newUser =
+                    await userModel.create({
+                        email,
+                        name,
+                        avatar: {
+                            public_id: "",
+                            url: avatar,
+                        },
+                    });
 
-                sendToken(newUser, 200, res);
+                sendToken(
+                    newUser,
+                    200,
+                    res
+                );
             } else {
-                sendToken(user, 200, res);
+                sendToken(
+                    user,
+                    200,
+                    res
+                );
             }
         } catch (error: any) {
-            return next(new ErrorHandler(error.message, 400));
+            return next(
+                new ErrorHandler(error.message, 400)
+            );
         }
     }
 );
 
-// Update user info
+/**
+ * Update user info
+ */
 
 interface IUpdateUserInfo {
     name?: string;
@@ -877,17 +960,23 @@ interface IUpdateUserInfo {
 export const updateUserInfo = CatchAsyncError(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { name } = req.body as IUpdateUserInfo;
+            const {
+                name,
+            } = req.body as IUpdateUserInfo;
 
             const userId = req.user?._id;
 
             if (!userId) {
                 return next(
-                    new ErrorHandler("User not authenticated", 401)
+                    new ErrorHandler(
+                        "User not authenticated",
+                        401
+                    )
                 );
             }
 
-            const user = await userModel.findById(userId);
+            const user =
+                await userModel.findById(userId);
 
             if (name && user) {
                 user.name = name;
@@ -905,12 +994,16 @@ export const updateUserInfo = CatchAsyncError(
                 user,
             });
         } catch (error: any) {
-            return next(new ErrorHandler(error.message, 400));
+            return next(
+                new ErrorHandler(error.message, 400)
+            );
         }
     }
 );
 
-// Update user password
+/**
+ * Update user password
+ */
 
 interface IUpdatePassword {
     oldPassword: string;
@@ -938,26 +1031,38 @@ export const updatePassword = CatchAsyncError(
 
             if (!userId) {
                 return next(
-                    new ErrorHandler("User not authenticated", 401)
+                    new ErrorHandler(
+                        "User not authenticated",
+                        401
+                    )
                 );
             }
 
-            const user = await userModel
-                .findById(userId)
-                .select("+password");
+            const user =
+                await userModel
+                    .findById(userId)
+                    .select("+password");
 
             if (!user || user.password === undefined) {
                 return next(
-                    new ErrorHandler("Invalid user", 400)
+                    new ErrorHandler(
+                        "Invalid user",
+                        400
+                    )
                 );
             }
 
             const isPasswordMatch =
-                await user.comparePassword(oldPassword);
+                await user.comparePassword(
+                    oldPassword
+                );
 
             if (!isPasswordMatch) {
                 return next(
-                    new ErrorHandler("Invalid old password", 400)
+                    new ErrorHandler(
+                        "Invalid old password",
+                        400
+                    )
                 );
             }
 
@@ -975,12 +1080,16 @@ export const updatePassword = CatchAsyncError(
                 user,
             });
         } catch (error: any) {
-            return next(new ErrorHandler(error.message, 400));
+            return next(
+                new ErrorHandler(error.message, 400)
+            );
         }
     }
 );
 
-// Update profile picture
+/**
+ * Update profile picture
+ */
 
 export const updateProfilePicture = CatchAsyncError(
     async (req: Request, res: Response, next: NextFunction) => {
@@ -991,14 +1100,17 @@ export const updateProfilePicture = CatchAsyncError(
 
             if (!userId) {
                 return next(
-                    new ErrorHandler("User not authenticated", 401)
+                    new ErrorHandler(
+                        "User not authenticated",
+                        401
+                    )
                 );
             }
 
-            const user = await userModel.findById(userId);
+            const user =
+                await userModel.findById(userId);
 
             if (avatar && user) {
-                // If user has one avatar, delete the old image first
                 if (user.avatar?.public_id) {
                     await cloudinary.v2.uploader.destroy(
                         user.avatar.public_id
@@ -1014,8 +1126,10 @@ export const updateProfilePicture = CatchAsyncError(
                         );
 
                     user.avatar = {
-                        public_id: myCloud.public_id,
-                        url: myCloud.secure_url,
+                        public_id:
+                            myCloud.public_id,
+                        url:
+                            myCloud.secure_url,
                     };
                 } else {
                     const myCloud =
@@ -1028,8 +1142,10 @@ export const updateProfilePicture = CatchAsyncError(
                         );
 
                     user.avatar = {
-                        public_id: myCloud.public_id,
-                        url: myCloud.secure_url,
+                        public_id:
+                            myCloud.public_id,
+                        url:
+                            myCloud.secure_url,
                     };
                 }
             }
@@ -1046,34 +1162,61 @@ export const updateProfilePicture = CatchAsyncError(
                 user,
             });
         } catch (error: any) {
-            return next(new ErrorHandler(error.message, 400));
+            return next(
+                new ErrorHandler(error.message, 400)
+            );
         }
     }
 );
 
+/**
+ * Get all users
+ */
+
 export const getAllUsers = CatchAsyncError(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
         try {
             getAllUsersService(res);
         } catch (error: any) {
-            return next(new ErrorHandler(error.message, 400));
+            return next(
+                new ErrorHandler(error.message, 400)
+            );
         }
     }
 );
 
-// Update user role -- only for admin
+/**
+ * Update user role -- only for admin
+ */
 
 export const updateUserRole = CatchAsyncError(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
         try {
-            const { email, role } = req.body;
+            const {
+                email,
+                role,
+            } = req.body;
 
-            const isUserExits = await userModel.findOne({ email });
+            const isUserExits =
+                await userModel.findOne({ email });
 
             if (isUserExits) {
                 const id = isUserExits._id;
 
-                updatetUserRoleService(res, id, role);
+                // ObjectId -> string
+                updatetUserRoleService(
+                    res,
+                    id.toString(),
+                    role
+                );
             } else {
                 res.status(400).json({
                     success: false,
@@ -1081,23 +1224,45 @@ export const updateUserRole = CatchAsyncError(
                 });
             }
         } catch (error: any) {
-            return next(new ErrorHandler(error.message, 400));
+            return next(
+                new ErrorHandler(error.message, 400)
+            );
         }
     }
 );
 
-// Delete user -- only for admin
+/**
+ * Delete user -- only for admin
+ */
 
 export const deleteUser = CatchAsyncError(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
         try {
             const { id } = req.params;
 
-            const user = await userModel.findById(id);
+            // Express can type params as string | string[]
+            if (Array.isArray(id)) {
+                return next(
+                    new ErrorHandler(
+                        "Invalid user ID",
+                        400
+                    )
+                );
+            }
+
+            const user =
+                await userModel.findById(id);
 
             if (!user) {
                 return next(
-                    new ErrorHandler("User not found", 404)
+                    new ErrorHandler(
+                        "User not found",
+                        404
+                    )
                 );
             }
 
@@ -1107,10 +1272,13 @@ export const deleteUser = CatchAsyncError(
 
             res.status(201).json({
                 success: true,
-                message: "User deleted successfully",
+                message:
+                    "User deleted successfully",
             });
         } catch (error: any) {
-            return next(new ErrorHandler(error.message, 400));
+            return next(
+                new ErrorHandler(error.message, 400)
+            );
         }
     }
 );
