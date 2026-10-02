@@ -28,6 +28,9 @@ import { v2 as cloudinary } from "cloudinary";
 import http from "http";
 import connectDB from "./utils/db";
 import { initSocketServer } from "./socketServer";
+import dns from 'dns';
+dns.setDefaultResultOrder('ipv4first'); // 💡 Tells Vercel to route to MongoDB using IPv4
+
 
 const PORT = Number(process.env.PORT) || 3000;
 
