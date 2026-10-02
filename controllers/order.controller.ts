@@ -308,9 +308,9 @@ export const createOrder = CatchAsyncError(
 
       // Create notification
       await NotificationModel.create({
-        userId: user._id,
-        title: "New Order",
-        message: `You have a new order from ${course.name}`,
+       userId: user._id.toString(),
+       title: "New Order",
+       message: `You have a new order from ${course.name}`,
       });
 
       // Increase course purchase count
