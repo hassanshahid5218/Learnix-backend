@@ -156,41 +156,35 @@
 // );
 
 
+
 import { NextFunction, Request, Response } from "express";
 
 import { CatchAsyncError } from "../middleware/catchAsyncErrors";
 
 import { IOrder } from "../models/order.model";
-
 import userModel from "../models/user.model";
+import CourseModel, { ICourse } from "../models/course.model";
+import NotificationModel from "../models/notification.model";
 
 import ErrorHandler from "../utils/ErrorHandler";
+import sendMail from "../utils/sendMail";
+import { redis } from "../utils/redis";
 
-import CourseModel, { ICourse } from "../models/course.model";
+import path from "path";
+import ejs from "ejs";
 
 import {
   getAllOrdersService,
   newOrder,
 } from "../services/order.service";
 
-import sendMail from "../utils/sendMail";
-
-import path from "path";
-
-import ejs from "ejs";
-
-import NotificationModel from "../models/notification.model";
-
-import { redis } from "../utils/redis";
-
 require("dotenv").config();
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-// ----------------------------------------------------
-// CREATE ORDER
-// ----------------------------------------------------
-
+/**
+ * CREATE ORDER
+ */
 export const createOrder = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -204,18 +198,16 @@ export const createOrder = CatchAsyncError(
       }
 
       // Verify Stripe payment
-      if (payment_info) {
-        if ("id" in payment_info) {
-          const paymentIntentId = payment_info.id;
+      if (payment_info && "id" in payment_info) {
+        const paymentIntentId = payment_info.id;
 
-          const paymentIntent =
-            await stripe.paymentIntents.retrieve(paymentIntentId);
+        const paymentIntent =
+          await stripe.paymentIntents.retrieve(paymentIntentId);
 
-          if (paymentIntent.status !== "succeeded") {
-            return next(
-              new ErrorHandler("Payment not authorized!", 400)
-            );
-          }
+        if (paymentIntent.status !== "succeeded") {
+          return next(
+            new ErrorHandler("Payment not authorized!", 400)
+          );
         }
       }
 
@@ -228,7 +220,8 @@ export const createOrder = CatchAsyncError(
 
       // Check if course is already purchased
       const courseExistsInUser = user.courses.some(
-        (course: any) => course._id?.toString() === courseId
+        (course: any) =>
+          course._id?.toString() === courseId
       );
 
       if (courseExistsInUser) {
@@ -245,7 +238,9 @@ export const createOrder = CatchAsyncError(
         await CourseModel.findById(courseId);
 
       if (!course) {
-        return next(new ErrorHandler("Course not found", 404));
+        return next(
+          new ErrorHandler("Course not found", 404)
+        );
       }
 
       // Order data
@@ -308,9 +303,9 @@ export const createOrder = CatchAsyncError(
 
       // Create notification
       await NotificationModel.create({
-       userId: user._id.toString(),
-       title: "New Order",
-       message: `You have a new order from ${course.name}`,
+        user: user._id,
+        title: "New Order",
+        message: `You have a new order from ${course.name}`,
       });
 
       // Increase course purchase count
@@ -328,10 +323,9 @@ export const createOrder = CatchAsyncError(
   }
 );
 
-// ----------------------------------------------------
-// GET ALL ORDERS - ONLY FOR ADMIN
-// ----------------------------------------------------
-
+/**
+ * GET ALL ORDERS - ONLY FOR ADMIN
+ */
 export const getAllOrders = CatchAsyncError(
   async (
     req: Request,
@@ -348,10 +342,9 @@ export const getAllOrders = CatchAsyncError(
   }
 );
 
-// ----------------------------------------------------
-// SEND STRIPE PUBLISHABLE KEY
-// ----------------------------------------------------
-
+/**
+ * SEND STRIPE PUBLISHABLE KEY
+ */
 export const sendStripePublshableKey = CatchAsyncError(
   async (req: Request, res: Response) => {
     res.status(200).json({
@@ -361,10 +354,9 @@ export const sendStripePublshableKey = CatchAsyncError(
   }
 );
 
-// ----------------------------------------------------
-// NEW PAYMENT
-// ----------------------------------------------------
-
+/**
+ * NEW PAYMENT
+ */
 export const newPayment = CatchAsyncError(
   async (
     req: Request,
