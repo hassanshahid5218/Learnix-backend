@@ -79,37 +79,84 @@
 
 // export default connectDB;
 
+// import mongoose from "mongoose";
+
+// require("dotenv").config();
+
+// const connectDB = async () => {
+// const dbUrl = process.env.DB_URL;
+
+// if (!dbUrl) {
+// throw new Error("DB_URL is not defined in environment variables.");
+// }
+
+// // Reuse existing connection
+// if (mongoose.connection.readyState === 1) {
+// console.log("Database already connected. Reusing connection.");
+// return;
+// }
+
+// try {
+// const data = await mongoose.connect(dbUrl, {
+// bufferCommands: false,
+// serverSelectionTimeoutMS: 10000,
+// maxPoolSize: 10,
+// maxIdleTimeMS: 60000,
+// });
+
+// console.log(`Database connected with ${data.connection.host}`);
+
+// } catch (error: any) {
+// console.error("Database connection failed:", error.message);
+// throw error;
+// }
+// };
+
+// export default connectDB;
+
 import mongoose from "mongoose";
 
 require("dotenv").config();
 
-const connectDB = async () => {
 const dbUrl = process.env.DB_URL;
 
-if (!dbUrl) {
-throw new Error("DB_URL is not defined in environment variables.");
-}
+let connectionPromise: Promise<typeof mongoose> | null = null;
 
-// Reuse existing connection
-if (mongoose.connection.readyState === 1) {
-console.log("Database already connected. Reusing connection.");
-return;
-}
+const connectDB = async () => {
+  if (!dbUrl) {
+    throw new Error("DB_URL is not defined in environment variables.");
+  }
 
-try {
-const data = await mongoose.connect(dbUrl, {
-bufferCommands: false,
-serverSelectionTimeoutMS: 10000,
-maxPoolSize: 10,
-maxIdleTimeMS: 60000,
-});
+  // Already connected
+  if (mongoose.connection.readyState === 1) {
+    return mongoose;
+  }
 
-console.log(`Database connected with ${data.connection.host}`);
+  // Connection is already in progress
+  if (connectionPromise) {
+    return connectionPromise;
+  }
 
-} catch (error: any) {
-console.error("Database connection failed:", error.message);
-throw error;
-}
+  connectionPromise = mongoose
+    .connect(dbUrl, {
+      bufferCommands: false,
+      serverSelectionTimeoutMS: 10000,
+      maxPoolSize: 10,
+      maxIdleTimeMS: 60000,
+    })
+    .then((data) => {
+      console.log(`Database connected with ${data.connection.host}`);
+      return data;
+    })
+    .catch((error) => {
+      connectionPromise = null;
+
+      console.error("Database connection failed:", error.message);
+
+      throw error;
+    });
+
+  return connectionPromise;
 };
 
 export default connectDB;

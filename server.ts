@@ -58,21 +58,61 @@
 // }
 // });
 
+// import "dotenv/config";
+
+// import { app } from "./app";
+// import { v2 as cloudinary } from "cloudinary";
+// import http from "http";
+// import connectDB from "./utils/db";
+// import { initSocketServer } from "./socketServer";
+
+// const PORT = Number(process.env.PORT) || 3000;
+
+// // Cloudinary configuration
+// cloudinary.config({
+// cloud_name: process.env.CLOUD_NAME,
+// api_key: process.env.CLOUD_API_KEY,
+// api_secret: process.env.CLOUD_SECRET_KEY,
+// });
+
+// // Create HTTP server
+// const server = http.createServer(app);
+
+// // Initialize Socket.IO
+// initSocketServer(server);
+
+// // Connect to database before starting the server
+// const startServer = async () => {
+// try {
+// await connectDB();
+
+// server.listen(PORT, () => {
+//   console.log(`Learnix server is running on port ${PORT}`);
+// });
+
+// } catch (error) {
+// console.error("Server startup failed:", error);
+// }
+// };
+
+// startServer();
+
+// export default server;
+
 import "dotenv/config";
 
 import { app } from "./app";
 import { v2 as cloudinary } from "cloudinary";
 import http from "http";
-import connectDB from "./utils/db";
 import { initSocketServer } from "./socketServer";
 
 const PORT = Number(process.env.PORT) || 3000;
 
 // Cloudinary configuration
 cloudinary.config({
-cloud_name: process.env.CLOUD_NAME,
-api_key: process.env.CLOUD_API_KEY,
-api_secret: process.env.CLOUD_SECRET_KEY,
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_SECRET_KEY,
 });
 
 // Create HTTP server
@@ -81,20 +121,9 @@ const server = http.createServer(app);
 // Initialize Socket.IO
 initSocketServer(server);
 
-// Connect to database before starting the server
-const startServer = async () => {
-try {
-await connectDB();
-
+// Start server
 server.listen(PORT, () => {
   console.log(`Learnix server is running on port ${PORT}`);
 });
-
-} catch (error) {
-console.error("Server startup failed:", error);
-}
-};
-
-startServer();
 
 export default server;
