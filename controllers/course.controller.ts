@@ -734,38 +734,93 @@ export const getAllCourses = CatchAsyncError(
 /**
  * Get Course Content - Only For Valid User
  */
+// export const getCourseByUser = CatchAsyncError(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//       const userCourseList = req.user?.courses;
+//       const courseId = String(req.params.id);
+
+//       const courseExists = userCourseList?.find(
+//         (course: any) => course._id.toString() === courseId
+//       );
+
+//       if (!courseExists) {
+//         return next(
+//           new ErrorHandler(
+//             "You are not eligible to access this course",
+//             500
+//           )
+//         );
+//       }
+
+//       const course = await CourseModel.findById(courseId);
+
+//       const content = course?.courseData;
+
+//       res.status(200).json({
+//         success: true,
+//         content,
+//       });
+//     } catch (error: any) {
+//       return next(new ErrorHandler(error.message, 500));
+//     }
+//   }
+// );
+
 export const getCourseByUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userCourseList = req.user?.courses;
       const courseId = String(req.params.id);
 
-      const courseExists = userCourseList?.find(
-        (course: any) => course._id.toString() === courseId
+      const userCourseList = req.user?.courses;
+
+      if (!userCourseList || userCourseList.length === 0) {
+        return next(
+          new ErrorHandler(
+            "You are not eligible to access this course",
+            403
+          )
+        );
+      }
+
+      // Check the actual courseId stored in the user's purchased courses
+      const courseExists = userCourseList.some(
+        (course: any) =>
+          course?.courseId?.toString() === courseId
       );
 
       if (!courseExists) {
         return next(
           new ErrorHandler(
             "You are not eligible to access this course",
-            500
+            403
           )
         );
       }
 
       const course = await CourseModel.findById(courseId);
 
-      const content = course?.courseData;
+      if (!course) {
+        return next(
+          new ErrorHandler("Course not found", 404)
+        );
+      }
 
-      res.status(200).json({
+      const content = course.courseData;
+
+      return res.status(200).json({
         success: true,
         content,
       });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 500));
+      return next(
+        new ErrorHandler(error.message, 500)
+      );
     }
   }
 );
+
+
 
 /**
  * Add Question In Course
@@ -943,9 +998,9 @@ export const addReview = CatchAsyncError(
       const courseId = String(req.params.id);
 
       const courseExists = userCourseList?.some(
-        (course: any) =>
-          course._id.toString() === courseId
-      );
+  (course: any) =>
+    course?.courseId?.toString() === courseId
+);
 
       if (!courseExists) {
         return next(
