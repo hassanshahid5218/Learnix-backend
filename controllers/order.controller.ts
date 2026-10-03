@@ -220,9 +220,9 @@ export const createOrder = CatchAsyncError(
 
       // Check if course is already purchased
       const courseExistsInUser = user.courses.some(
-        (course: any) =>
-          course._id?.toString() === courseId
-      );
+  (course: any) =>
+    course.courseId?.toString() === courseId.toString()
+);
 
       if (courseExistsInUser) {
         return next(
